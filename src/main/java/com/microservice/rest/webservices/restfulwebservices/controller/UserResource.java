@@ -4,6 +4,8 @@ import com.microservice.rest.webservices.restfulwebservices.exception.UserNotFou
 import com.microservice.rest.webservices.restfulwebservices.user.User;
 import com.microservice.rest.webservices.restfulwebservices.user.UserDaoService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -12,10 +14,13 @@ import javax.validation.Valid;
 import java.net.URI;
 import java.util.List;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 @RestController
 public class UserResource {
 
-    private UserDaoService service;
+    private final UserDaoService service;
 
     @Autowired
     public UserResource(UserDaoService service){
@@ -27,14 +32,27 @@ public class UserResource {
         return service.findAll();
     }
 
+
+    /**
+     * In this method we are using HATEOAS(Hypermedia as the Engine of Application State) concept
+     * Website allows to see data and perform actions using links using HATEOAS.
+     * Entity Model used to wrap the data without making changes in the bean class.
+     * WebMVCLinkBuilder used to create the link.
+     * @param id id
+     * @return User wrapped with Entity Model.
+     */
     @GetMapping("/users/{id}")
-    public User user(@PathVariable Integer id){
+    public EntityModel<User> user(@PathVariable Integer id){
 
 
         User user = service.findUserById(id);
 
         if (null != user){
-            return user;
+            EntityModel<User> entityModel = EntityModel.of(user);
+            WebMvcLinkBuilder link = linkTo(methodOn(this.getClass()).users());
+            entityModel.add(link.withRel("all-users"));
+
+            return entityModel;
         }else {
             throw new UserNotFoundException("User dose not exists!!!");
         }
