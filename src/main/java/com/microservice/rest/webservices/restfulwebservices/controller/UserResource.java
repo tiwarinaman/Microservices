@@ -1,6 +1,7 @@
 package com.microservice.rest.webservices.restfulwebservices.controller;
 
 import com.microservice.rest.webservices.restfulwebservices.exception.UserNotFoundException;
+import com.microservice.rest.webservices.restfulwebservices.user.Post;
 import com.microservice.rest.webservices.restfulwebservices.user.User;
 import com.microservice.rest.webservices.restfulwebservices.user.UserDaoService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,6 +79,4 @@ public class UserResource {
     public void removeUser(@PathVariable Integer id){
         service.deleteUser(id);
     }
-
-
 }
